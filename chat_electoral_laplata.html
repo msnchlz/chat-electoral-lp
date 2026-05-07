@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Electoral La Plata</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --surface: #f5f5f5;
+    --border: #e0e0e0;
+    --accent: #1e3a8a;
+    --accent2: #fbbf24;
+    --text: #0f172a;
+    --muted: #64748b;
+    --user-bg: #eff6ff;
+    --ai-bg: #f8fafc;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    color: var(--text);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 16px 20px;
+    border-bottom: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #ffffff;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.08);
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent) 0%, #0c4a6e 100%);
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--accent2);
+    font-family: 'Poppins', sans-serif;
+  }
+
+  header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  header span {
+    font-size: 10px;
+    color: var(--accent2);
+    margin-left: auto;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+    background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+  }
+
+  #chat::-webkit-scrollbar { width: 5px; }
+  #chat::-webkit-scrollbar-track { background: transparent; }
+  #chat::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 2px; }
+
+  .msg {
+    max-width: 700px;
+    animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user { align-self: flex-end; }
+  .msg.ai { align-self: flex-start; }
+
+  .bubble {
+    padding: 13px 16px;
+    border-radius: 0;
+    font-size: 13px;
+    line-height: 1.7;
+    border: 2px solid var(--border);
+  }
+
+  .msg.user .bubble {
+    background: var(--user-bg);
+    border-left: 4px solid var(--accent);
+  }
+
+  .msg.ai .bubble {
+    background: var(--ai-bg);
+    border-left: 4px solid var(--accent2);
+  }
+
+  .msg.ai .bubble strong { color: var(--accent); font-weight: 700; }
+  .msg.ai .bubble em { color: var(--accent2); }
+
+  .label {
+    font-size: 10px;
+    color: var(--accent);
+    margin-bottom: 5px;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .msg.user .label { text-align: right; }
+
+  .thinking {
+    display: flex;
+    gap: 6px;
+    padding: 13px 16px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  footer {
+    padding: 16px 20px;
+    border-top: 3px solid var(--accent);
+    background: #ffffff;
+    flex-shrink: 0;
+    box-shadow: 0 -2px 8px rgba(30, 58, 138, 0.08);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  textarea {
+    flex: 1;
+    background: #ffffff;
+    border: 2px solid var(--accent);
+    border-radius: 0;
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    padding: 11px 14px;
+    resize: none;
+    outline: none;
+    min-height: 44px;
+    max-height: 120px;
+    line-height: 1.5;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  textarea:focus { 
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+  }
+  textarea::placeholder { color: var(--muted); }
+
+  button {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--accent) 0%, #0c4a6e 100%);
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.1s;
+    font-weight: 700;
+  }
+
+  button:hover { opacity: 0.9; transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  button:disabled { opacity: 0.3; cursor: not-allowed; }
+  button svg { width: 20px; height: 20px; stroke: #ffffff; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .chip {
+    font-size: 11px;
+    padding: 7px 12px;
+    border: 2px solid var(--accent);
+    border-radius: 0;
+    color: var(--accent);
+    cursor: pointer;
+    background: transparent;
+    width: auto;
+    height: auto;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+
+  .chip:hover { 
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(251, 191, 36, 0.08);
+  }
+
+  .welcome {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .welcome h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .welcome p { 
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 12px; }
+  th { text-align: left; color: #ffffff; background: var(--accent); font-weight: 700; padding: 8px 10px; font-family: 'Poppins', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+  td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(251, 191, 36, 0.06); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🗳</div>
+  <h1>Chat Electoral La Plata</h1>
+  <span>Análisis de datos</span>
+</header>
+
+<div id="chat">
+  <div class="welcome">
+    <h2>Chat Electoral<br>La Plata</h2>
+    <p>Analizá datos y tendencias electorales del municipio de La Plata (2013–2023)<br>Hacé tus preguntas sobre resultados, partidos y evoluciones políticas.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="chips" id="chips">
+    <button class="chip" onclick="sendChip(this)">¿Quién ganó intendencia 2019?</button>
+    <button class="chip" onclick="sendChip(this)">Crecimiento Libertad Avanza</button>
+    <button class="chip" onclick="sendChip(this)">PASO vs Generales 2023</button>
+    <button class="chip" onclick="sendChip(this)">Tendencia peronismo</button>
+  </div>
+  <div class="input-row">
+    <textarea id="input" placeholder="Preguntá sobre elecciones en La Plata…" rows="1"></textarea>
+    <button id="send" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+</footer>
+
+<script>
+const ELECTION_DATA = [{"año":"2015","eleccion":"BALLOTAGE","cargo":"PRESIDENTE","agrupacion":"FRENTE PARA LA VICTORIA","votos":170994},{"año":"2015","eleccion":"BALLOTAGE","cargo":"PRESIDENTE","agrupacion":"CAMBIEMOS","votos":236351},{"año":"2023","eleccion":"SEGUNDA VUELTA","cargo":"PRESIDENTE Y VICE","agrupacion":"LA LIBERTAD AVANZA","votos":208515},{"año":"2023","eleccion":"SEGUNDA VUELTA","cargo":"PRESIDENTE Y VICE","agrupacion":"UNION POR LA PATRIA","votos":204713},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"ESPACIO UNION PRO","votos":11193},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"FRENTE CIUDAD NUEVA","votos":20258},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"FRENTE SOCIAL DE LA PROVINCIA DE BUENOS AIRES","votos":43100},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"FRENTE PARA LA VICTORIA","votos":68432},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"FRENTE DE IZQUIERDA Y DE LOS TRABAJADORES","votos":27416},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"UNIDOS POR LA LIBERTAD Y EL TRABAJO","votos":29363},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"FRENTE RENOVADOR","votos":123696},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"FRENTE POPULAR DEMOCRATICO Y SOCIAL (PODEMOS)","votos":5797},{"año":"2013","eleccion":"GENERAL","cargo":"CONCEJALES/AS","agrupacion":"FRENTE PROGRESISTA CIVICO Y SOCIAL","votos":64167},{"año":"2015","eleccion":"GENERALES","cargo":"INTENDENTE","agrupacion":"ALIANZA FRENTE PARA LA VICTORIA","votos":111566},{"año":"2015","eleccion":"GENERALES","cargo":"INTENDENTE","agrupacion":"ALIANZA PROGRESISTAS","votos":19078},{"año":"2015","eleccion":"GENERALES","cargo":"INTENDENTE","agrupacion":"ALIANZA FRENTE DE IZQUIERDA Y DE LOS TRABAJADORES","votos":22608},{"año":"2015","eleccion":"GENERALES","cargo":"INTENDENTE","agrupacion":"ALIANZA UNIDOS POR UNA NUEVA ALTERNATIVA (UNA)","votos":62296},{"año":"2015","eleccion":"GENERALES","cargo":"INTENDENTE","agrupacion":"CAMBIEMOS BUENOS AIRES","votos":162238},{"año":"2015","eleccion":"GENERALES","cargo":"INTENDENTE","agrupacion":"PATRIA GRANDE","votos":14697},{"año":"2017","eleccion":"GENERALES","cargo":"CONCEJALES","agrupacion":"FRENTE DE IZQUIERDA Y DE LOS TRABAJADORES","votos":26395},{"año":"2017","eleccion":"GENERALES","cargo":"CONCEJALES","agrupacion":"1PAIS","votos":37689},{"año":"2017","eleccion":"GENERALES","cargo":"CONCEJALES","agrupacion":"CAMBIEMOS BUENOS AIRES","votos":201813},{"año":"2017","eleccion":"GENERALES","cargo":"CONCEJALES","agrupacion":"FRENTE JUSTICIALISTA","votos":24958},{"año":"2017","eleccion":"GENERALES","cargo":"CONCEJALES","agrupacion":"IZQUIERDA AL FRENTE POR EL SOCIALISMO","votos":3734},{"año":"2017","eleccion":"GENERALES","cargo":"CONCEJALES","agrupacion":"UNIDAD CIUDADANA","votos":114580},{"año":"2017","eleccion":"GENERALES","cargo":"CONCEJALES","agrupacion":"VAMOS CREANDO CIUDAD NUEVA","votos":10349},{"año":"2019","eleccion":"GENERAL","cargo":"INTENDENTE","agrupacion":"FRENTE NOS","votos":5287},{"año":"2019","eleccion":"GENERAL","cargo":"INTENDENTE","agrupacion":"JUNTOS POR EL CAMBIO","votos":205365},{"año":"2019","eleccion":"GENERAL","cargo":"INTENDENTE","agrupacion":"CONSENSO FEDERAL","votos":21431},{"año":"2019","eleccion":"GENERAL","cargo":"INTENDENTE","agrupacion":"FRENTE DE TODOS","votos":171830},{"año":"2019","eleccion":"GENERAL","cargo":"INTENDENTE","agrupacion":"FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNIDAD","votos":17573},{"año":"2021","eleccion":"GENERAL","cargo":"CONCEJALES","agrupacion":"JUNTOS","votos":183044},{"año":"2021","eleccion":"GENERAL","cargo":"CONCEJALES","agrupacion":"FRENTE DE TODOS","votos":137164},{"año":"2021","eleccion":"GENERAL","cargo":"CONCEJALES","agrupacion":"FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNIDAD","votos":31451},{"año":"2021","eleccion":"GENERAL","cargo":"CONCEJALES","agrupacion":"AVANZA LIBERTAD","votos":27798},{"año":"2021","eleccion":"GENERAL","cargo":"CONCEJALES","agrupacion":"FRENTE VAMOS CON VOS","votos":17820},{"año":"2023","eleccion":"GENERAL","cargo":"INTENDENTE/A","agrupacion":"LA LIBERTAD AVANZA","votos":78189},{"año":"2023","eleccion":"GENERAL","cargo":"INTENDENTE/A","agrupacion":"FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNIDAD","votos":21392},{"año":"2023","eleccion":"GENERAL","cargo":"INTENDENTE/A","agrupacion":"UNION POR LA PATRIA","votos":162268},{"año":"2023","eleccion":"GENERAL","cargo":"INTENDENTE/A","agrupacion":"JUNTOS POR EL CAMBIO","votos":161412},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"FRENTE PARA LA VICTORIA","votos":62189},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"COMPROMISO FEDERAL","votos":5019},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"FRENTE DE IZQUIERDA Y DE LOS TRABAJADORES","votos":20865},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"UNIDOS POR LA LIBERTAD Y EL TRABAJO","votos":53004},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"FRENTE RENOVADOR","votos":88569},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"FRENTE POPULAR DEMOCRATICO Y SOCIAL (PODEMOS)","votos":7863},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"UNION CON FE","votos":3645},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"FRENTE PROGRESISTA CIVICO Y SOCIAL","votos":63647},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"ESPACIO UNION PRO","votos":7845},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"FRENTE CIUDAD NUEVA","votos":16555},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"FRENTE SOCIAL DE LA PROVINCIA DE BUENOS AIRES","votos":35852},{"año":"2013","eleccion":"PASO","cargo":"CONCEJALES/AS","agrupacion":"PARTIDO LEALTAD Y DIGNIDAD DE LA PROVINCIA DE BUENOS AIRES","votos":1786},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"UNION DEL PUEBLO LA PLATA","votos":2510},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"MOVIMIENTO AL SOCIALISMO","votos":2158},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"PARTIDO POPULAR","votos":712},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"TODOS POR BUENOS AIRES","votos":928},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"PATRIA GRANDE","votos":7601},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"ALIANZA FRENTE PARA LA VICTORIA","votos":122388},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"ALIANZA PROGRESISTAS","votos":20594},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"ALIANZA COMPROMISO FEDERAL","votos":2594},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"MST-MOVIMIENTO SOCIALISTA DE LOS TRABAJADORES","votos":2089},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"CAMBIEMOS BUENOS AIRES","votos":124387},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"ALIANZA FRENTE POPULAR","votos":3017},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"ALIANZA FRENTE DE IZQUIERDA Y DE LOS TRABAJADORES","votos":16150},{"año":"2015","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"ALIANZA UNIDOS POR UNA NUEVA ALTERNATIVA (UNA)","votos":65794},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FEDERAL","votos":4272},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"TODOS POR BUENOS AIRES","votos":1113},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FRENTE DE IZQUIERDA Y DE LOS TRABAJADORES","votos":18503},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"1PAIS","votos":46684},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"CAMBIEMOS BUENOS AIRES","votos":153297},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"ENCUENTRO POPULAR POR TIERRA TECHO Y TRABAJO","votos":961},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FRENTE JUSTICIALISTA","votos":28306},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"IZQUIERDA AL FRENTE POR EL SOCIALISMO","votos":6236},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"UNIDAD CIUDADANA","votos":92735},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"CORRIENTE DE PENSAMIENTO BONAERENSE (CO.PE.BO)","votos":5476},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FRENTE UNION FEDERAL","votos":2069},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"VAMOS CREANDO CIUDAD NUEVA","votos":8261},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"PARTIDO SOCIALISTA","votos":4418},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"PARTIDO RENOVADOR FEDERAL","votos":1808},{"año":"2017","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"UVEP-U. VECINALISTA PLATENSE","votos":1110},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"FRENTE DE TODOS","votos":184296},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNIDAD","votos":16455},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"JUNTOS POR EL CAMBIO","votos":143933},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"MOVIMIENTO ORGANIZACION DEMOCRATICA","votos":2457},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"PARTIDO DIGNIDAD POPULAR","votos":725},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"CONSENSO FEDERAL","votos":25762},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"MOVIMIENTO DE AVANZADA SOCIALISTA","votos":4074},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"PARTIDO HUMANISTA","votos":975},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"FRENTE NOS","votos":6743},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"FRENTE PATRIOTA","votos":1100},{"año":"2019","eleccion":"PASO","cargo":"INTENDENTE","agrupacion":"ALTERNATIVA VECINAL PLATENSE","votos":2927},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FRENTE DE TODOS","votos":123297},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FRENTE VAMOS CON VOS","votos":15626},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"RENOVADOR FEDERAL","votos":1205},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"MOVIMIENTO ORGANIZACION DEMOCRATICA","votos":903},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FEDERAL","votos":2221},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"CONSERVADOR POPULAR","votos":1194},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"MOVIMIENTO AL SOCIALISMO","votos":4460},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"CORRIENTE DE PENSAMIENTO BONAERENSE","votos":512},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"TODOS POR BUENOS AIRES","votos":1208},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FRENTE PATRIOTA","votos":1406},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"REPUBLICANO FEDERAL","votos":2585},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"VOCACION SOCIAL","votos":3527},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"UNION CELESTE Y BLANCO","votos":5167},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"HUMANISTA","votos":1156},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"AVANZA LIBERTAD","votos":15733},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNIDAD","votos":22316},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"UNION POR TODOS","votos":3401},{"año":"2021","eleccion":"PASO","cargo":"CONCEJALES","agrupacion":"JUNTOS","votos":161856},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"CORRIENTE DE PENSAMIENTO BONAERENSE","votos":251},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"POLITICA ABIERTA PARA LA INTEGRIDAD SOCIAL","votos":389},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"PRINCIPIOS Y VALORES","votos":2105},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"CELESTE PROVIDA","votos":869},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"CONFIANZA PUBLICA","votos":231},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"ESPERANZA DEL PUEBLO","votos":14},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"FRENTE FEDERAL DE ACCION SOLIDARIA DE LA PROVINCIA DE BUENOS AIRES","votos":287},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"FRENTE H.A.C.E.R. POR PROGRESO SOCIAL","votos":1044},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"FRENTE PATRIOTA FEDERAL","votos":821},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"LIBER.AR","votos":296},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"MOVIMIENTO DE AVANZADA SOCIALISTA","votos":1780},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"MOVIMIENTO LIBRES DEL SUR","votos":1748},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"POLITICA OBRERA","votos":659},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"PROYECTO JOVEN","votos":448},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"TODOS POR BUENOS AIRES","votos":158},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"VOCACION SOCIAL","votos":422},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"JUNTOS POR EL CAMBIO","votos":146530},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"UNION POR LA PATRIA","votos":129752},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"LA LIBERTAD AVANZA","votos":64598},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"FRENTE DE IZQUIERDA Y DE TRABAJADORES - UNIDAD","votos":16241},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"BUENOS AIRES PRIMERO (BAP)","votos":2065},{"año":"2023","eleccion":"PASO","cargo":"INTENDENTE/A","agrupacion":"MOVIMIENTO DE INTEGRACION FEDERAL (MIF)","votos":457}];
+
+const SYSTEM_PROMPT = `Sos un analista político especializado en elecciones del municipio de La Plata, Argentina.
+Tenés acceso a los datos electorales COMPLETOS del municipio de La Plata para el período 2013-2023.
+
+DATOS ELECTORALES (votos positivos agregados):
+${JSON.stringify(ELECTION_DATA)}
+
+INSTRUCCIONES:
+- Respondé SIEMPRE en español
+- Usá los datos concretos para sustentar tus respuestas
+- Calculá porcentajes y totales cuando sea útil
+- Podés usar formato markdown: **negrita**, listas con -, tablas markdown
+- Sé conciso pero informativo
+- Si te preguntan algo fuera del alcance, decilo claramente`;
+
+const API_KEY = 'sk-ant-v5c42zznfh7q32oqungh7kgqpgq7u3wxfkf347s2czqbj63bkywqz3nqawaiqma'; // API Key personal
+
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const chipsEl = document.getElementById('chips');
+
+let history = [];
+let loading = false;
+
+function formatMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.*?)__/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="background:#eff6ff;color:#1e3a8a;padding:1px 5px;border-radius:3px;font-size:12px">$1</code>')
+    .replace(/^### (.+)$/gm, '<strong style="color:#1e3a8a;display:block;margin-top:8px">$1</strong>')
+    .replace(/^## (.+)$/gm, '<strong style="color:#1e3a8a;display:block;margin-top:10px;font-size:15px">$1</strong>')
+    .replace(/^- (.+)$/gm, '<span style="display:block;padding-left:12px;position:relative"><span style="position:absolute;left:2px;color:#1e3a8a">·</span>$1</span>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+function addMessage(role, text) {
+  const msg = document.createElement('div');
+  msg.className = `msg ${role}`;
+
+  const label = document.createElement('div');
+  label.className = 'label';
+  label.textContent = role === 'user' ? 'Vos' : 'Analista';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = role === 'ai' ? formatMarkdown(text) : text.replace(/\n/g, '<br>');
+
+  msg.appendChild(label);
+  msg.appendChild(bubble);
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addThinking() {
+  const msg = document.createElement('div');
+  msg.className = 'msg ai';
+  msg.id = 'thinking';
+
+  const label = document.createElement('div');
+  label.className = 'label';
+  label.textContent = 'Analista';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble thinking';
+  bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+
+  msg.appendChild(label);
+  msg.appendChild(bubble);
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+  return msg;
+}
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text || loading) return;
+
+  chipsEl.style.display = 'none';
+  loading = true;
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage('user', text);
+  history.push({ role: 'user', content: text });
+
+  const thinkingEl = addThinking();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-haiku-20241022',
+        max_tokens: 800,
+        system: SYSTEM_PROMPT,
+        messages: history
+      })
+    });
+
+    const data = await response.json();
+    thinkingEl.remove();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Error en la API');
+    }
+
+    const reply = data.content?.find(b => b.type === 'text')?.text || 'No pude generar una respuesta.';
+    history.push({ role: 'assistant', content: reply });
+    addMessage('ai', reply);
+
+  } catch (err) {
+    thinkingEl.remove();
+    addMessage('ai', `⚠️ Error: ${err.message}`);
+  }
+
+  loading = false;
+  sendBtn.disabled = false;
+  input.focus();
+}
+
+function sendChip(btn) {
+  input.value = btn.textContent;
+  sendMessage();
+}
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+});
+</script>
+</body>
+</html>
